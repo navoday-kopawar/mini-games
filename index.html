@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Game</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #111827;
+      --icon-bg: #1f2933;
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --accent: #38bdf8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(180deg, #0f172a, #020617);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* =========================
+       Header
+    ========================== */
+    header {
+      padding: 2rem 1rem 1.5rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* =========================
+       Main Grid
+    ========================== */
+    main {
+      flex: 1;
+      padding: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .game-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 1.2rem 0.8rem;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .game-card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+    }
+
+    .game-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    .icon-wrapper {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 0.6rem;
+      background: linear-gradient(145deg, #1f2937, #020617);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    .icon-wrapper img {
+      width: 38px;
+      height: 38px;
+    }
+
+    .game-title {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-top: 0.4rem;
+    }
+
+    /* =========================
+       Footer
+    ========================== */
+    footer {
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(8px);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Mini Games</h1>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <section class="game-grid">
+
+      <!-- Game Card -->
+      <div class="game-card" tabindex="0">
+        <div class="icon-wrapper">
+          <img src="https://cdn-icons-png.flaticon.com/512/1979/1979375.png" alt="Snake Game Icon">
+        </div>
+        <div class="game-title">Snake</div>
+      </div>
+
+      <div class="game-card" tabindex="0">
+        <div class="icon-wrapper">
+          <img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="Puzzle Game Icon">
+        </div>
+        <div class="game-title">Puzzle</div>
+      </div>
+
+      <div class="game-card" tabindex="0">
+        <div class="icon-wrapper">
+          <img src="https://cdn-icons-png.flaticon.com/512/1055/1055687.png" alt="Arcade Game Icon">
+        </div>
+        <div class="game-title">Arcade</div>
+      </div>
+
+      <div class="game-card" tabindex="0">
+        <div class="icon-wrapper">
+          <img src="https://cdn-icons-png.flaticon.com/512/993/993723.png" alt="Memory Game Icon">
+        </div>
+        <div class="game-title">Memory</div>
+      </div>
+
+      <div class="game-card" tabindex="0">
+        <div class="icon-wrapper">
+          <img src="https://cdn-icons-png.flaticon.com/512/1256/1256650.png" alt="Racing Game Icon">
+        </div>
+        <div class="game-title">Racing</div>
+      </div>
+
+      <div class="game-card" tabindex="0">
+        <div class="icon-wrapper">
+          <img src="https://cdn-icons-png.flaticon.com/512/2936/2936886.png" alt="Action Game Icon">
+        </div>
+        <div class="game-title">Action</div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    Design by
+    <a href="https://navoday-kopawar.github.io/navoday-portfolio/" target="_blank" rel="noopener noreferrer">
+      Navoday
+    </a>
+  </footer>
+
+</body>
+</html>
