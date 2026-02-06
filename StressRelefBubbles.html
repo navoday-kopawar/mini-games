@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" href="./favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon.png">
+    <title>Stress Relief Bubble App  | Mini Games</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        :root {
+            --container-bg: #ededed;
+            --bubble-up: #ffffff;
+            --bubble-down: #111111;
+        }
+
+        body.theme-sky {
+            --container-bg: #eaf4ff;
+            --bubble-up: #ffffff;
+            --bubble-down: #d6e9ff;
+        }
+
+        body.theme-peach {
+            --container-bg: #fff1ea;
+            --bubble-up: #ffffff;
+            --bubble-down: #ffd8c2;
+        }
+
+        body.theme-lavender {
+            --container-bg: #f4f1ff;
+            --bubble-up: #ffffff;
+            --bubble-down: #e1dbff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", sans-serif
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation
+        }
+
+        body {
+            background: var(--container-bg);
+            display: flex;
+            flex-direction: column
+        }
+
+        header {
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(#f8f8f8, #f2f2f2);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .12);
+            position: relative
+        }
+
+        header img {
+            width: 28px;
+            height: 28px;
+            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .15))
+        }
+
+        header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111;
+            letter-spacing: .2px
+        }
+
+        .theme-btn {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #444;
+            padding: 4px;
+            border-radius: 8px
+        }
+
+        .theme-btn:hover {
+            background: rgba(0, 0, 0, .06)
+        }
+
+        .controls {
+            height: 56px;
+            padding: 6px 16px;
+            background: #fafafa;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative
+        }
+
+        .controls label {
+            font-size: 13px;
+            color: #333
+        }
+
+        .controls input[type=range] {
+            flex: 1
+        }
+
+        .sound-btn,
+        .haptic-btn {
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 12px;
+            border: none;
+            background: #111;
+            color: #fff;
+            cursor: pointer
+        }
+
+        .sound-dropdown {
+            position: absolute;
+            top: 58px;
+            right: 16px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, .15);
+            display: none;
+            z-index: 100
+        }
+
+        .sound-option {
+            padding: 10px 14px;
+            font-size: 13px;
+            cursor: pointer
+        }
+
+        .sound-option:hover {
+            background: #f2f2f2
+        }
+
+        main {
+            flex: 1;
+            padding: 12px
+        }
+
+        .popit-container {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            gap: clamp(10px, 1.6vw, 20px);
+            justify-content: center;
+            align-content: center
+        }
+
+        .bubble {
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform .12s ease, background .15s ease
+        }
+
+        .bubble.white {
+            background: var(--bubble-up);
+            box-shadow:
+                inset 0 6px 10px rgba(255, 255, 255, .95),
+                inset 0 -6px 10px rgba(0, 0, 0, .15),
+                0 6px 10px rgba(0, 0, 0, .25)
+        }
+
+        .bubble.black {
+            background: var(--bubble-down);
+            box-shadow:
+                inset 0 6px 10px rgba(255, 255, 255, .2),
+                inset 0 -6px 10px rgba(0, 0, 0, .9),
+                0 6px 10px rgba(0, 0, 0, .35)
+        }
+
+        .bubble:active {
+            transform: scale(.92)
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <img src="./assets/logo_Dark.png">
+        <h1>Stress Relief Bubbles</h1>
+        <button class="theme-btn" id="themeBtn" aria-label="Change theme">
+            <i class="fa-solid fa-palette"></i>
+        </button>
+    </header>
+
+    <div class="controls">
+        <label>Vol</label>
+        <input type="range" id="volumeSlider" min="0" max="1.5" step="0.01" value="1.2">
+        <button class="sound-btn" id="soundBtn">🔊 Pop ▼</button>
+        <button class="haptic-btn" id="hapticBtn">Haptic ON</button>
+        <div class="sound-dropdown" id="soundDropdown"></div>
+    </div>
+
+    <main>
+        <div class="popit-container" id="grid"></div>
+    </main>
+
+    <script>
+        let audioCtx, masterGain;
+        let soundMode = 0;
+        let hapticEnabled = true;
+        const themeBtn = document.getElementById("themeBtn");
+        const volumeSlider = document.getElementById("volumeSlider");
+        const hapticBtn = document.getElementById("hapticBtn");
+
+        const soundList = [
+            "🔊 Pop", "🚀 Whoosh", "🔫 Laser Zap", "🌀 Boing", "🎮 Arcade Jump",
+            "⚡ Glitch", "✅ Success", "❌ Error Buzz", "📣 Notification", "🛸 UFO Sweep",
+            "🧨 Explosion", "🎯 Hit Marker", "🕹️ Power Up", "📡 Radar Ping", "🧲 Magnet Pull"
+        ];
+
+        const waveTypes = [
+            "square", "sine", "sawtooth", "triangle", "square",
+            "sawtooth", "sine", "square", "triangle", "sawtooth",
+            "square", "sine", "triangle", "sine", "sawtooth"
+        ];
+
+        const notes = [220, 260, 300, 340, 380, 420, 460, 500, 540, 580];
+        const hapticPatterns = [
+            [20], [15, 15], [60], [30, 30], [25],
+            [10, 10, 10], [40], [80], [20, 20], [50],
+            [90], [25, 25], [35], [15, 40], [60]
+        ];
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                masterGain = audioCtx.createGain();
+                masterGain.gain.value = 1.2;
+                masterGain.connect(audioCtx.destination);
+            }
+            if (audioCtx.state === "suspended") {
+                audioCtx.resume();
+            }
+        }
+
+
+        function playSound(freq) {
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = waveTypes[soundMode];
+            osc.frequency.value = freq * (soundMode % 2 ? 1.5 : 1);
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(1.4, now + .02);
+            gain.gain.exponentialRampToValueAtTime(.001, now + .6);
+            osc.connect(gain).connect(masterGain);
+            osc.start(now); osc.stop(now + .8);
+        }
+
+        function vibrate() {
+            if (hapticEnabled && navigator.vibrate) {
+                navigator.vibrate(hapticPatterns[soundMode]);
+            }
+        }
+
+        const dropdown = document.getElementById("soundDropdown");
+        const soundBtn = document.getElementById("soundBtn");
+
+        soundList.forEach((name, i) => {
+            const d = document.createElement("div");
+            d.className = "sound-option";
+            d.textContent = name;
+            d.onclick = () => {
+                soundMode = i;
+                soundBtn.textContent = name + " ▼";
+                dropdown.style.display = "none";
+            };
+            dropdown.appendChild(d);
+        });
+
+        soundBtn.onclick = () => {
+            dropdown.style.display =
+                dropdown.style.display === "block" ? "none" : "block";
+        };
+
+        const themes = ["theme-sky", "theme-peach", "theme-lavender"];
+        let themeIndex = -1;
+
+        themeBtn.onclick = () => {
+            if (themeIndex >= 0) document.body.classList.remove(themes[themeIndex]);
+            themeIndex = (themeIndex + 1) % themes.length;
+            document.body.classList.add(themes[themeIndex]);
+        };
+
+        const grid = document.getElementById("grid");
+        let dragging = false;
+        let lastHoverTime = 0;
+        const HOVER_DELAY = 180;
+        const isDesktop = matchMedia("(pointer:fine)").matches;
+
+        function calcGrid() {
+            const w = innerWidth;
+            const h = innerHeight - 112;
+            const size = Math.max(60, Math.min(120, Math.floor(Math.min(w, h) / 6)));
+            const cols = Math.max(4, Math.floor(w / (size + 12)));
+            const rows = Math.max(4, Math.floor(h / (size + 12)));
+            return { cols, rows, size };
+        }
+
+        function createBubbles() {
+            grid.innerHTML = "";
+            const { cols, rows, size } = calcGrid();
+            grid.style.gridTemplateColumns = `repeat(${cols},${size}px)`;
+
+            for (let i = 0; i < cols * rows; i++) {
+                const b = document.createElement("div");
+                const note = notes[i % notes.length];
+                b.className = "bubble white";
+                b.style.width = b.style.height = size + "px";
+
+                b.onpointerdown = () => {
+                    initAudio(); dragging = true;
+                    b.classList.toggle("white");
+                    b.classList.toggle("black");
+                    playSound(note); vibrate();
+                };
+
+                b.onpointerenter = () => {
+                    if (dragging) {
+                        b.classList.toggle("white");
+                        b.classList.toggle("black");
+                        playSound(note); vibrate();
+                    }
+                };
+
+                if (isDesktop) {
+                    b.onmouseenter = () => {
+                        const now = performance.now();
+                        if (now - lastHoverTime < HOVER_DELAY) return;
+                        lastHoverTime = now;
+                        initAudio(); playSound(note);
+                        b.classList.add("black");
+                        setTimeout(() => b.classList.remove("black"), 120);
+                    };
+                }
+
+                grid.appendChild(b);
+            }
+        }
+
+        document.addEventListener("pointerup", () => dragging = false);
+        window.addEventListener("resize", createBubbles);
+        volumeSlider.oninput = e => masterGain && (masterGain.gain.value = e.target.value);
+        hapticBtn.onclick = () => {
+            hapticEnabled = !hapticEnabled;
+            hapticBtn.textContent = hapticEnabled ? "Haptic ON" : "Haptic OFF";
+        };
+
+        createBubbles();
+    </script>
+
+
+
+</body>
+
+</html>

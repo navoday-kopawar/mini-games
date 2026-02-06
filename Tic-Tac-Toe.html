@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="./favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon.png">
+    <title>Tic-Tac-Toe | Mini Games</title>
+
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            font-family: "Segoe UI", system-ui, sans-serif;
+            background: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background:
+                linear-gradient(#ffffff, #fbfbfb),
+                repeating-radial-gradient(circle at 30% 40%,
+                    rgba(0, 0, 0, 0.02) 0,
+                    rgba(0, 0, 0, 0.02) 1px,
+                    transparent 2px);
+            padding: 36px 24px 24px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .header img {
+            width: 36px;
+        }
+
+        .title {
+            font-family: "Segoe Print", "Comic Sans MS", cursive;
+
+            font-size: 40px;
+            font-weight: 900;
+        }
+
+        .title {
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .status {
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .board {
+            position: relative;
+            width: min(72vw, 380px);
+            aspect-ratio: 1;
+            margin-bottom: 18px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .h-line,
+        .v-line {
+            position: absolute;
+            background: #222;
+        }
+
+        .h-line {
+            width: 100%;
+            height: 3px;
+        }
+
+        .h1 {
+            top: 33.333%
+        }
+
+        .h2 {
+            top: 66.666%
+        }
+
+        .v-line {
+            height: 100%;
+            width: 3px;
+        }
+
+        .v1 {
+            left: 33.333%
+        }
+
+        .v2 {
+            left: 66.666%
+        }
+
+        .cell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .cell:active {
+            transform: scale(0.96);
+        }
+
+        .mark {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Segoe Print", "Comic Sans MS", cursive;
+
+            font-size: clamp(52px, 10vw, 78px);
+            font-weight: 900;
+            transform: rotate(var(--r));
+        }
+
+        .controls {
+            display: flex;
+            gap: 18px;
+        }
+
+        /* ===== BUTTONS ===== */
+        button {
+            position: relative;
+            background:
+                linear-gradient(180deg, #fff, #f7f7f7),
+                repeating-linear-gradient(45deg,
+                    rgba(0, 0, 0, 0.015) 0,
+                    rgba(0, 0, 0, 0.015) 1px,
+                    transparent 2px,
+                    transparent 4px);
+            border: 2px solid #222;
+            border-radius: 14px;
+            padding: 12px 18px;
+            min-width: 64px;
+            height: 52px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 3px 3px 0 #222;
+        }
+
+        button:active {
+            transform: translate(3px, 3px);
+            box-shadow: none;
+        }
+
+        button svg {
+            width: 26px;
+            height: 26px;
+            stroke: #222;
+            stroke-width: 2.4;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Sound button slightly lighter */
+        .sound-btn {
+            border-radius: 10px;
+            background:
+                linear-gradient(180deg, #fff, #f9f9f9),
+                repeating-linear-gradient(-45deg,
+                    rgba(0, 0, 0, 0.012) 0,
+                    rgba(0, 0, 0, 0.012) 1px,
+                    transparent 2px,
+                    transparent 4px);
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            top: -10px;
+            animation: fall 2.5s linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(120vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .shake {
+            animation: shake .6s infinite;
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0)
+            }
+
+            25% {
+                transform: translateX(-4px)
+            }
+
+            50% {
+                transform: translateX(4px)
+            }
+
+            75% {
+                transform: translateX(-4px)
+            }
+
+            100% {
+                transform: translateX(0)
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container" id="container">
+
+        <div class="header">
+            <img src="./assets/logo_Dark.png" alt="Tic-Tac-Toe Logo">
+
+            <div class="title">Let's play</div>
+        </div>
+
+        <div class="status" id="status">Player X's turn</div>
+
+        <div class="board">
+            <div class="h-line h1"></div>
+            <div class="h-line h2"></div>
+            <div class="v-line v1"></div>
+            <div class="v-line v2"></div>
+
+            <div class="cell" data-i="0"></div>
+            <div class="cell" data-i="1"></div>
+            <div class="cell" data-i="2"></div>
+            <div class="cell" data-i="3"></div>
+            <div class="cell" data-i="4"></div>
+            <div class="cell" data-i="5"></div>
+            <div class="cell" data-i="6"></div>
+            <div class="cell" data-i="7"></div>
+            <div class="cell" data-i="8"></div>
+        </div>
+
+        <div class="controls">
+            <button id="restartBtn" aria-label="Restart">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 12a9 9 0 1 0 3-6.7" />
+                    <path d="M3 4v4h4" />
+                </svg>
+            </button>
+
+            <button id="muteBtn" class="sound-btn" aria-label="Sound">
+                <svg id="soundIcon" viewBox="0 0 24 24">
+                    <path d="M4 9v6h4l5 4V5L8 9H4" />
+                    <path d="M16 9a4 4 0 0 1 0 6" />
+                </svg>
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        let audioCtx, loop = null, muted = false;
+
+        const cells = document.querySelectorAll(".cell");
+        const statusText = document.getElementById("status");
+        const restartBtn = document.getElementById("restartBtn");
+        const muteBtn = document.getElementById("muteBtn");
+        const soundIcon = document.getElementById("soundIcon");
+        const container = document.getElementById("container");
+
+        let board = Array(9).fill("");
+        let player = "X";
+        let active = true;
+
+        const wins = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+        function ctx() {
+            audioCtx ??= new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === "suspended") {
+                audioCtx.resume().catch(() => { });
+            }
+            return audioCtx;
+        }
+
+
+        function tone(freq, time, type = "square", gain = 0.12) {
+            if (muted) return;
+            const c = ctx(), o = c.createOscillator(), g = c.createGain();
+            o.type = type;
+            o.frequency.value = freq;
+            g.gain.value = gain;
+            o.connect(g);
+            g.connect(c.destination);
+            o.start();
+            o.stop(c.currentTime + time);
+        }
+
+        function clickSound() {
+            tone(900, 0.04);
+            if ("vibrate" in navigator) {
+                navigator.vibrate(20);
+            }
+
+        }
+
+        function stopLoop() {
+            if (loop) {
+                clearInterval(loop);
+                loop = null;
+            }
+        }
+
+        function cleanupAudio() {
+            stopLoop();
+            if (audioCtx) {
+                audioCtx.close();
+                audioCtx = null;
+            }
+        }
+
+        function startWinMusic() {
+            stopLoop();
+            const notes = [880, 988, 1046, 988];
+            let i = 0;
+            loop = setInterval(() => {
+                tone(notes[i++ % notes.length], 0.18);
+                spawnConfetti(8);
+            }, 220);
+        }
+
+        function startDrawMusic() {
+            stopLoop();
+            const notes = [420, 360, 300];
+            let i = 0;
+            loop = setInterval(() => {
+                tone(notes[i++ % notes.length], 0.22, "sawtooth", 0.12);
+            }, 360);
+        }
+
+        function spawnConfetti(n) {
+            if (document.querySelectorAll(".confetti").length > 120) return;
+            const colors = ["#ff3b3b", "#ffcc00", "#4caf50", "#2196f3", "#9c27b0"];
+            for (let i = 0; i < n; i++) {
+                const d = document.createElement("div");
+                d.className = "confetti";
+                d.style.left = Math.random() * 100 + "vw";
+                d.style.background = colors[Math.random() * colors.length | 0];
+                document.body.appendChild(d);
+                setTimeout(() => d.remove(), 2500);
+            }
+        }
+
+        cells.forEach(c => c.onclick = () => play(c));
+        restartBtn.onclick = () => { cleanupAudio(); resetGame(); };
+
+        muteBtn.onclick = () => {
+            muted = !muted;
+            soundIcon.innerHTML = muted
+                ? '<path d="M4 9v6h4l5 4V5L8 9H4"/><path d="M19 5L5 19"/>'
+                : '<path d="M4 9v6h4l5 4V5L8 9H4"/><path d="M16 9a4 4 0 0 1 0 6"/>';
+        };
+
+        function play(cell) {
+            const i = cell.dataset.i;
+            if (!active || board[i]) return;
+
+            board[i] = player;
+
+            const m = document.createElement("div");
+            m.className = "mark";
+            m.textContent = player;
+            m.style.setProperty("--r", (Math.random() * 6 - 3) + "deg");
+            cell.appendChild(m);
+
+            clickSound();
+
+            for (const w of wins) {
+                if (w.every(x => board[x] === player)) {
+                    statusText.textContent = `🎉 Player ${player} Wins!`;
+                    startWinMusic();
+                    container.classList.add("shake");
+                    active = false;
+                    return;
+                }
+            }
+
+            if (!board.includes("")) {
+                statusText.textContent = "😂😂😂 DRAW 😂😂😂";
+                startDrawMusic();
+                active = false;
+                return;
+            }
+
+            player = player === "X" ? "O" : "X";
+            statusText.textContent = `Player ${player}'s turn`;
+        }
+
+        function resetGame() {
+            container.classList.remove("shake");
+            board.fill("");
+            player = "X";
+            active = true;
+            statusText.textContent = "Player X's turn";
+            cells.forEach(c => c.innerHTML = "");
+        }
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) cleanupAudio();
+        });
+        window.addEventListener("pagehide", cleanupAudio);
+        window.addEventListener("beforeunload", cleanupAudio);
+    </script>
+
+</body>
+
+</html>
